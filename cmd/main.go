@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/alessandra1408/crud-golang/configs"
 	"github.com/alessandra1408/crud-golang/handlers"
@@ -12,7 +13,7 @@ func main() {
 
 	err := configs.Load()
 	if err != nil {
-		panic(fmt.Sprint("Error to load variables: %v", err))
+		panic(fmt.Sprintf("Error to load variables: %v", err))
 	}
 
 	r := chi.NewRouter()
@@ -21,4 +22,6 @@ func main() {
 	r.Delete("/{id}", handlers.Delete)
 	r.Get("/", handlers.Get)
 	r.Get("/{id}", handlers.List)
+
+	http.ListenAndServe(fmt.Sprintf(":%s", configs.GetServerPort()), r)
 }
