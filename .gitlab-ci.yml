@@ -1,0 +1,87 @@
+stages:
+  - build
+  - lint
+  - audit
+  - test
+  - package
+  - push
+  - pages
+
+build:
+  stage: build
+  tags:
+    - shell
+  script:
+    - make build
+
+lint:
+  stage: lint
+  tags:
+    - shell
+  script:
+    - make lint
+
+audit:
+  stage: audit
+  tags:
+    - shell
+  script:
+    - make audit
+
+test:
+  stage: test
+  tags:
+    - shell
+  before_script:
+    - make env
+  script:
+    - make test
+  after_script:
+    - make env-stop
+  artifacts:
+    when: always
+    paths:
+      - coverage
+    expire_in: 1 days
+  coverage: '/total\:\s*\(statements\)\s*\d{1,}\.\d\%/'
+
+package:
+  stage: package
+  tags:
+    - shell
+  dependencies:
+    - test
+    - build
+  script:
+    - make image
+
+push:
+  stage: push
+  tags:
+    - shell
+  only:
+    - /^[\d]+.{1}[\d]+.{1}[\d]+(-rc.{1}[\d]+)?$/
+  dependencies:
+    - test
+    - build
+    - package
+  script:
+    - make tag push
+
+pages:
+  stage: pages
+  tags:
+    - shell
+  only:
+    - master
+  dependencies:
+    - test
+  script:
+    - mkdir public
+    - mv coverage/ public/
+  artifacts:
+    untracked: true
+    when: always
+    paths:
+      - public
+    expire_in: 360 days
