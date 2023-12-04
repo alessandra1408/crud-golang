@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: ${POSTGRES_NAME}
+    environment:
+      - POSTGRES_USER: user_todo
+      - POSTGRES_PASSWORD: 1122
+      - POSTGRES_DB: api_todo
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
